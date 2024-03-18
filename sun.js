@@ -12,7 +12,7 @@ class Sun {
     this.rotationSpeed = 0.001; // Set rotation speed
   }
   draw() {
-    if (this.y < this.game.height - this.height * 1.5) {
+    if (this.y < (this.value == 50 ? 0 : this.game.height - this.height * 1.5)) {
       this.speed += 0.0005
       this.y += this.speed * this.game.deltaTime
     }

@@ -1,3 +1,20 @@
+let name = 'PlayerName'
+let level = 1
+document.querySelectorAll('.nameTxt').forEach(el => {
+  el.innerText = name
+})
+document.getElementById('userInput').addEventListener('change', (e) => {
+  name = e.target.value
+  document.querySelectorAll('.nameTxt').forEach(el => {
+    el.innerText = name
+  })
+})
+document.getElementById('levelInput').addEventListener('change', (e) => {
+  level = e.target.value
+  document.querySelectorAll('.levelTxt').forEach(el => {
+    el.innerText = 'Level ' + e.target[e.target.value].innerText
+  })
+})
 class Game {
   constructor(canvas, context) {
     this.canvas = canvas
@@ -20,6 +37,8 @@ class Game {
     this.zombiesTimer = 0
     this.sunsTimer = 0
     this.score = 0
+    this.gameOver = false
+    this.paused = false
     this.perfectFrameTime = 1000 / 60
     this.shovel = new Shovel(this)
     this.grass = []
@@ -78,7 +97,6 @@ class Game {
     cvs.addEventListener('mousemove', e => {
       this.mouse.x = e.clientX - this.bound.left
       this.mouse.y = e.clientY - this.bound.top
-      console.log(this.mouse)
       this.grass.forEach((grass, i) => {
         if (this.shovel.selected && this.grass[i].active && this.checkCollide(this.mouse, grass)) {
           this.grass[i].hoverDelete = true;
@@ -95,6 +113,13 @@ class Game {
       this.mouse.x = e.clientX - this.bound.left
       this.mouse.y = e.clientY - this.bound.top
       this.mouse.active = false
+    })
+    window.addEventListener('keydown', (e) => {
+      if (e.key == 'Escape' && !this.gameOver) {
+        this.paused = true
+        this.gameOver = false
+        document.querySelector('.pause').classList.remove('hide')
+      }
     })
   }
   render() {
@@ -117,7 +142,7 @@ class Game {
     this.ctx.font = 'bold 18px Arial'
     this.ctx.textAlign = 'left'
     this.ctx.textBaseLine = 'middle'
-    this.ctx.fillText('PlayerName', 450, 35)
+    this.ctx.fillText(name, 450, 35)
     this.ctx.fillText('Score  : ' + this.score, 450, 58)
     this.ctx.fillText(`Time    : ${Math.floor(this.timer / 60000).toString().padStart(2, '0')}:${(Math.round(this.timer / 1000) % 60).toString().padStart(2, '0')}`, 450, 80)
     // if (this.timer<3000){
@@ -125,20 +150,26 @@ class Game {
     //     this.ctx.fillText(Math.ceil(3-this.timer/1000),this.width/2,this.height/2)
     //   }
     this.suns.forEach(obj => obj.draw())
+    document.querySelectorAll('.scoreTxt').forEach(el => {
+      el.innerHTML = `Score ${this.score}`
+    })
+    document.querySelectorAll('.time').forEach(el => {
+      el.innerHTML = `Time Elapsed ${Math.floor(this.timer / 60000).toString().padStart(2, '0')}:${(Math.round(this.timer / 1000) % 60).toString().padStart(2, '0')}`
+    })
 
   }
   update() {
+    this.timer += this.deltaTime
     if (this.zombiesTimer > 5000) {
       this.zombiesTimer = 0
-      this.zombies.push(new Zombie(this, Math.floor(Math.random() * 5)))
-      this.zombies.push(new Zombie(this, Math.floor(Math.random() * 5)))
-      this.zombies.push(new Zombie(this, Math.floor(Math.random() * 5)))
-
+      for (let i = 0; i < level; i++) {
+        this.zombies.push(new Zombie(this, Math.floor(Math.random() * 5)))
+      }
     } else {
       this.zombiesTimer += this.deltaTime
     }
     if (this.suns.length < 2) {
-      if (this.sunsTimer > 3000) {
+      if (this.sunsTimer > 5000) {
         this.sunsTimer = 0
         this.suns.push(new Sun(this))
 
@@ -159,23 +190,66 @@ class Game {
   }
 }
 
-window.addEventListener('DOMContentLoaded', mulai)
+//window.addEventListener('DOMContentLoaded', mulai)
+
 function mulai() {
   const cvs = document.getElementById('cvs')
   const ctx = cvs.getContext('2d')
   cvs.width = 800
   cvs.height = 600
+  document.querySelector('.over').classList.add('hide')
 
   const game = new Game(cvs, ctx)
   let lastTime = performance.now()
   requestAnimationFrame(animate)
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime
-    game.timer += deltaTime
     game.deltaTime = deltaTime
     lastTime = timeStamp
-    ctx.clearRect(0, 0, cvs.width, cvs.height)
-    game.render()
+    if (!game.gameOver) {
+      if (!game.paused) {
+        ctx.clearRect(0, 0, cvs.width, cvs.height)
+        game.render()
+        requestAnimationFrame(animate)
+      }
+    } else {
+      document.querySelector('.over').classList.remove('hide')
+    }
+  }
+  function unpause() {
+    game.gameOver = false
+    game.paused = false
+    lastTime = performance.now()
     requestAnimationFrame(animate)
+    document.querySelector('.pause').classList.add('hide')
+  }
+  document.querySelector('#continue').onclick = unpause
+  document.querySelector('#quit').onclick = () => {
+    document.querySelector('.gameboard').classList.add('hide')
+    document.querySelector('.pause').classList.add('hide')
+    document.querySelector('.over').classList.add('hide')
+    document.querySelector('.container').classList.remove('hide')
+  }
+  document.querySelector('#save').onclick = () => {
+    const index = leader.findIndex(item => item.name == name && item.score <= game.score)
+    if (index !== -1 && (leader[index]?.score || 0) <= game.score) {
+      leader[index] = {
+        name: name,
+        level: level == 3 ? 'Hard' : level == 2 ? 'Medium' : 'Easy',
+        score: game.score,
+        time: `${Math.floor(game.timer / 60000).toString().padStart(2, '0')}:${(Math.round(game.timer / 1000) % 60).toString().padStart(2, '0')}`
+      }
+    } else if (index == -1) {
+      leader.push({
+        name: name,
+        level: level == 3 ? 'Hard' : level == 2 ? 'Medium' : 'Easy',
+        score: game.score,
+        time: `${Math.floor(game.timer / 60000).toString().padStart(2, '0')}:${(Math.round(game.timer / 1000) % 60).toString().padStart(2, '0')}`
+      })
+    }
+    localStorage.setItem('leaderboard', JSON.stringify(leader))
+    leader = getLeaderboard()
+    showLeaderboard(leader)
+
   }
 }

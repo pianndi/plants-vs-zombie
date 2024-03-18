@@ -10,12 +10,17 @@ class Projectile {
     this.speed = 0.25
     this.damage = attributes.damage
     this.die = false
+    this.slow = attributes?.slow || false
   }
   draw() {
     if (!this.die) {
       this.game.zombies.forEach((zombie, i) => {
         if (!this.die && this.game.checkCollide(this, zombie)) {
           this.game.zombies[i].health -= this.damage
+          if (this.slow) {
+            this.game.zombies[i].slow = true
+            this.game.zombies[i].slowTimer = 0
+          }
           this.die = true
           if (this.game.zombies[i].health <= 0) {
             this.game.zombies.splice(i, 1)
@@ -61,7 +66,8 @@ class Plant {
         totalFrames: 30,
         projectile: {
           name: 'IcePea',
-          damage: 0.75
+          damage: 0.75,
+          slow: true
         }
       }
     ]
@@ -80,7 +86,7 @@ class Plant {
     this.animationTimer = 0;
     this.animationInterval = data[index]?.frameInterval || 100;
     this.attackTimer = 0;
-    this.attackInterval = 1500
+    this.attackInterval = 2000
     this.projectile = data[index]?.projectile || null
     this.attack = false
     this.index = index
@@ -106,7 +112,7 @@ class Plant {
       } else this.attackTimer += this.game.deltaTime
     }
     if (this.index == 0) {
-      if (this.attackTimer > 10000) {
+      if (this.attackTimer > 15000) {
         this.attackTimer = 0
         this.game.suns.push(new Sun(this.game, this.x, this.y, 50))
       } else this.attackTimer += this.game.deltaTime

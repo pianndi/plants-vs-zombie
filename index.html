@@ -32,7 +32,7 @@
     <img src="design/source/WallNut.png" alt="" id="WallNut">
     <img src="design/source/Zombie.png" alt="" id="Zombie">
   </div>
-  <div class="container hide">
+  <div class="container">
     <div class="section">
       <img src="design/source/General/logo.png" alt="">
       <input type="text" name="username" id="userInput" placeholder="Input Username">
@@ -55,7 +55,7 @@
       <h2>How To Play</h2>
       <div>
         <p>1. Input Username</p>
-        <p>2. Take the sun to choosethe plant card</p>
+        <p>2. Take the sun to choose the plant card</p>
         <p>3. Put a plant cards into the field to fight zombies</p>
         <p>4. Don't let zombies pass trough the yard</p>
         <p>5. Enjoy!</p>
@@ -63,7 +63,7 @@
       <img src="design/source/General/close-icon.png" class='close' alt="">
     </div>
   </div>
-  <div class="gameboard">
+  <div class="gameboard hide">
     <canvas id="cvs"></canvas>
     <div class="leaderboard">
       <h2>LEADERBOARD</h2>
@@ -102,8 +102,95 @@
         </div>
       </div>
     </div>
+    <div class="dialog pause hide">
+      <h2>Game Paused</h2>
+      <div class="c">
+        <p class="nameTxt">PlayerName</p>
+        <p class="levelTxt">Level Easy</p>
+        <p class="scoreTxt">Score 0</p>
+        <p class="time">Time Elapsed 00:00</p>
+      </div>
+      <div class="row">
+        <button id="continue">Continue</button>
+        <button id="quit">Quit Game</button>
+      </div>
+    </div>
+    <div class="dialog over hide">
+      <h2>Game Over</h2>
+      <div class="c">
+        <p class="nameTxt">PlayerName</p>
+        <p class="levelTxt">Level Easy</p>
+        <p class="scoreTxt">Score 0</p>
+        <p class="time">Time Elapsed 00:00</p>
+      </div>
+      <div class="row">
+        <button id="save">Save Score</button>
+        <button onclick="mulai()">Restart</button>
+      </div>
+    </div>
+    <div class="dialog detail hide">
+      <h2 class="nameTxt">PlayerName</h2>
+      <div class="c">
+        <p class="levelTxt">Level Easy</p>
+        <p class="detailScore">Score 0</p>
+        <p class="detailTime">Time Elapsed 00:00</p>
+      </div>
+      <img src="design/source/General/close-icon.png" class='close' alt="">
+    </div>
   </div>
   <script>
+    function getLeaderboard() {
+      const data = JSON.parse(localStorage.getItem('leaderboard'))
+      return Array.isArray(data) ? data : []
+    }
+    let leader = getLeaderboard()
+    function showLeaderboard(leader) {
+      let sorted = []
+      if (sort.value == 2) {
+        sorted = leader.sort((a, b) => {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0
+        })
+      } else {
+        sorted = leader.sort((a, b) => b.score - a.score)
+      }
+      let html = ''
+      sorted.forEach((item, i) => {
+        html += `
+        <div class="item">
+          <div>
+            <span class="name">${item.name}</span>
+            <span class="score">Score : ${item.score}</span>
+          </div>
+          <button onclick='detailLeader(${i})'>Detail</button>
+        </div>
+        `
+      })
+      leaderboard.innerHTML = html
+    }
+    showLeaderboard(leader)
+    sort.addEventListener('change', ({ target }) => {
+      let sorted = []
+      if (target.value == 2) {
+        sorted = leader.sort((a, b) => {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0
+        })
+      } else {
+        sorted = leader.sort((a, b) => b.score - a.score)
+      }
+      showLeaderboard(sorted)
+    })
+    function detailLeader(i) {
+      const data = leader[i]
+      document.querySelector('.dialog.detail').classList.remove('hide')
+      document.querySelector('.detail .nameTxt').innerText = data.name
+      document.querySelector('.detail .levelTxt').innerText = "Level " + data.level
+      document.querySelector('.detailTime').innerText = "Time elapsed " + data.time
+      document.querySelector('.detailScore').innerHTML = "Score " + data.score
+    }
     const gambar = document.querySelectorAll('img')
     let loaded = 0;
     gambar.forEach(el => {
