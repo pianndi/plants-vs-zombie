@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PVZ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="loading">
+    <div class="div"></div>
+  </div>
+  <div class="assets hide">
+    <img src="design/source/General/Shovel.png" alt="">
+    <img src="design/source/General/Pea.png" alt="">
+    <img src="design/source/General/IcePea.png" alt="">
+    <img src="design/source/General/Sun.png" alt="">
+    <img src="design/source/General/lawnmowerIdle.gif" alt="">
+    <img src="design/source/General/lawnmowerActivated.gif" alt="">
+    <div class="seeds">
+      <img src="design/source/Seeds/IcePeaSeed.png" alt="">
+      <img src="design/source/Seeds/PeaShooterSeed.png" alt="">
+      <img src="design/source/Seeds/SunFlowerSeed.png" alt="">
+      <img src="design/source/Seeds/WallNutSeed.png" alt="">
+    </div>
+    <img src="design/source/General/Grass.bmp" alt="">
+    <img src="design/source/IcePea.png" alt="" id="IcePea">
+    <img src="design/source/PeaShooter.png" alt="" id="PeaShooter">
+    <img src="design/source/SunFlower.png" alt="" id="SunFlower">
+    <img src="design/source/WallNut.png" alt="" id="WallNut">
+    <img src="design/source/Zombie.png" alt="" id="Zombie">
+  </div>
+  <div class="container hide">
+    <div class="section">
+      <img src="design/source/General/logo.png" alt="">
+      <input type="text" name="username" id="userInput" placeholder="Input Username">
+      <select name="level" id="levelInput">
+        <option disabled value="1">Select Level</option>
+        <option value="1">Easy</option>
+        <option value="2">Medium</option>
+        <option value="3">Hard</option>
+      </select>
+      <div class="row">
+        <button id="playBtn" style="background: green;color: whitesmoke;"><img src="design/source/General/Shovel.png"
+            alt="">Play
+          Game</button>
+        <button id='instructionBtn' style="background: orange;">
+          Instruction
+        </button>
+      </div>
+    </div>
+    <div class="section hide" id="instruction">
+      <h2>How To Play</h2>
+      <div>
+        <p>1. Input Username</p>
+        <p>2. Take the sun to choosethe plant card</p>
+        <p>3. Put a plant cards into the field to fight zombies</p>
+        <p>4. Don't let zombies pass trough the yard</p>
+        <p>5. Enjoy!</p>
+      </div>
+      <img src="design/source/General/close-icon.png" class='close' alt="">
+    </div>
+  </div>
+  <div class="gameboard">
+    <canvas id="cvs"></canvas>
+    <div class="leaderboard">
+      <h2>LEADERBOARD</h2>
+      <select name="sort" id="sort">
+        <option value="1">Sort By Score</option>
+        <option value="2">Sort By Name</option>
+      </select>
+      <div id="leaderboard">
+        <div class="item">
+          <div>
+            <span class="name">Thomas Galih</span>
+            <span class="score">Score : 44</span>
+          </div>
+          <button>Detail</button>
+        </div>
+        <div class="item">
+          <div>
+            <span class="name">David Naista</span>
+            <span class="score">Score : 42</span>
+          </div>
+          <button>Detail</button>
+        </div>
+        <div class="item">
+          <div>
+            <span class="name">Roy Indomar</span>
+            <span class="score">Score : 33</span>
+          </div>
+          <button>Detail</button>
+        </div>
+        <div class="item">
+          <div>
+            <span class="name">Jeje Rianto</span>
+            <span class="score">Score : 12</span>
+          </div>
+          <button>Detail</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const gambar = document.querySelectorAll('img')
+    let loaded = 0;
+    gambar.forEach(el => {
+      if (el.complete) {
+        loaded++
+      }
+      el.onload = () => {
+        loaded++
+        console.log({ loaded, total: gambar.length })
+        if (loaded >= gambar.length) {
+          document.querySelector('.loading').style.display = 'none'
+        }
+      }
+    })
+    document.getElementById('instructionBtn').addEventListener('click', e => {
+      document.getElementById('instruction').classList.toggle('hide')
+    })
+    document.querySelectorAll('.close').forEach(el => el.addEventListener('click', e => e.target.parentNode.classList.add('hide')))
+    document.querySelector('#playBtn').addEventListener('click', () => {
+      document.querySelector('.container').classList.add('hide')
+      document.querySelector('.gameboard').classList.remove('hide')
+      mulai()
+    })
+  </script>
+  <script src="sun.js"></script>
+  <script src="grass.js"></script>
+  <script src="zombie.js"></script>
+  <script src="seeds.js"></script>
+  <script src="lawnMower.js"></script>
+  <script src="plants.js"></script>
+  <script src="shovel.js"></script>
+  <script src="main.js"></script>
+</body>
+
+</html>
