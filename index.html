@@ -58,6 +58,7 @@
         <p>2. Take the sun to choose the plant card</p>
         <p>3. Put a plant cards into the field to fight zombies</p>
         <p>4. Don't let zombies pass trough the yard</p>
+        <p>4. Press <b>Escape</b> to pause the game</p>
         <p>5. Enjoy!</p>
       </div>
       <img src="design/source/General/close-icon.png" class='close' alt="">
@@ -144,6 +145,8 @@
       return Array.isArray(data) ? data : []
     }
     let leader = getLeaderboard()
+    let find = leader.find(item => item.name == 'Piantod')
+    if (find !== -1) leader.push({ name: 'Piantod', score: 1, time: '99:99', level: 'Hard' })
     function showLeaderboard(leader) {
       let sorted = []
       if (sort.value == 2) {
@@ -160,11 +163,16 @@
         html += `
         <div class="item">
           <div>
-            <span class="name">${item.name}</span>
-            <span class="score">Score : ${item.score}</span>
-          </div>
-          <button onclick='detailLeader(${i})'>Detail</button>
-        </div>
+            <span class="name">${item.name.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+          }</span >
+      <span class="score">Score : ${item.score}</span>
+          </div >
+        <button onclick='detailLeader(${i})'>Detail</button>
+        </div >
         `
       })
       leaderboard.innerHTML = html
